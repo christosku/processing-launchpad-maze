@@ -1,4 +1,13 @@
 import themidibus.*; //Import the library
+import game2dai.entities.*;
+import game2dai.entityshapes.ps.*;
+import game2dai.maths.*;
+import game2dai.*;
+import game2dai.entityshapes.*;
+import game2dai.fsm.*;
+import game2dai.steering.*;
+import game2dai.utils.*;
+import game2dai.graph.*;
 
 MidiBus myBus; // The MidiBus
 
@@ -21,6 +30,8 @@ long lastMove = 0;
 void setup() {
   size(400, 400);
   background(0);
+  
+  final String OS = platformNames[platform];
 
   MidiBus.list(); // List all available Midi devices on STDOUT. This will show each device's index and name.
 
@@ -36,8 +47,12 @@ void setup() {
 
   // or for testing you could ...
   //                 Parent  In        Out
-  //                   |     |          |
-  myBus = new MidiBus(this, "MIDIIN2 (Launchpad Pro)", "MIDIOUT2 (Launchpad Pro)"); // Create a new MidiBus with no input device and the default Java Sound Synthesizer as the output device.
+  //      |     |          |
+  if (OS == "windows") {
+    myBus = new MidiBus(this, "MIDIIN2 (Launchpad Pro)", "MIDIOUT2 (Launchpad Pro)"); // Create a new MidiBus with no input device and the default Java Sound Synthesizer as the output device.
+  } else {
+    myBus = new MidiBus(this, "Standalone Port", "Standalone Port"); // Create a new MidiBus with no input device and the default Java Sound Synthesizer as the output device.
+  }
 }
 
 void draw() {
