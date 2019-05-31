@@ -21,10 +21,10 @@ int[][] labyrinth = {
 Graph graph = new Graph();
 
 
-int[] cursorPosition = {0, 0};
+int[] cursorPosition = {2, 7};
 int[] monsterPosition = {0, 7};
 long lastMove = 0;
-
+ArrayList<Node> path = new ArrayList<Node>();
 void setup() {
   size(400, 400);
   background(0);
@@ -46,23 +46,23 @@ void setup() {
     checkNeighbors(n);   
   }
   
-  for (Map.Entry me : graph.graph.entrySet()) {
-    Node n = (Node)me.getValue();
-    print(n.x);
-    print(n.y);
-    println(": ");
-    print("\t");
-    for (int i=0; i< n.edges.size(); i++) {
-      print(n.edges.get(i).x);
-      print(n.edges.get(i).y);
-      print(", ");
-    }
-    println();
-  }
+  //for (Map.Entry me : graph.graph.entrySet()) {
+  //  Node n = (Node)me.getValue();
+  //  print(n.x);
+  //  print(n.y);
+  //  println(": ");
+  //  print("\t");
+  //  for (int i=0; i< n.edges.size(); i++) {
+  //    print(n.edges.get(i).x);
+  //    print(n.edges.get(i).y);
+  //    print(", ");
+  //  }
+  //  println();
+  //}
 
   final String OS = platformNames[platform];
 
-  MidiBus.list(); // List all available Midi devices on STDOUT. This will show each device's index and name.
+  //MidiBus.list(); // List all available Midi devices on STDOUT. This will show each device's index and name.
   String[] inputs = MidiBus.availableInputs();
   String[] outputs = MidiBus.availableOutputs();
 
@@ -86,6 +86,7 @@ void setup() {
   //} else {
   myBus = new MidiBus(this, input, output); // Create a new MidiBus with no input device and the default Java Sound Synthesizer as the output device.
   //}
+  findPathToUser();
 }
 
 void draw() {
@@ -118,10 +119,59 @@ void draw() {
   }
 }
 
+void findPathToUser() {
+  graph.clear();
+  Node e = graph.graph.get(10*(monsterPosition[1]+1)+monsterPosition[0]+1);
+  Node s = graph.graph.get(10*(cursorPosition[1]+1)+cursorPosition[0]+1);
+  graph.setStart(s);
+  graph.setEnd(e);
+  bfs();
+}
+
+void bfs() {
+  ArrayList<Node> queue = new ArrayList<Node>();
+  path = new ArrayList<Node>();
+  queue.add(graph.start);
+  
+  
+  while (queue.size() > 0) {
+    Node node = queue.get(0);
+    if (node == graph.end) {
+      path.add(node);
+      Node next = node.parent;
+      while (next != null) {
+        path.add(next);
+        next = next.parent;
+      }
+      break;
+    } else {
+      ArrayList<Node> next = node.edges;
+      for (Node neighbor : next) {
+        if (!neighbor.searched) {
+          queue.add(neighbor);
+          neighbor.parent = node;
+        }
+      }
+      node.searched = true;
+    }
+  queue.remove(0);
+  }
+  
+  for (Node segment : path) {
+    if (segment != null) {
+      print(segment.x);
+      print(segment.y);
+      if (segment.parent != null) print("-->");
+    }
+  }
+  println("DONE");
+  
+}
+
 void checkNeighbors(Node n) {
   int xPos = n.x+1;
   int yPos = n.y;
-   if (xPos <=7 && labyrinth[yPos][xPos] == 0) {
+   if (xPos <=8 && labyrinth[yPos][xPos] == 0) {
      connectNeighbor(n, xPos, yPos);
    }
   xPos = n.x-1;
@@ -131,7 +181,7 @@ void checkNeighbors(Node n) {
    }
   xPos = n.x;
   yPos = n.y+1;
-   if (yPos <=7 && labyrinth[yPos][xPos] == 0) {
+   if (yPos <=8 && labyrinth[yPos][xPos] == 0) {
      connectNeighbor(n, xPos, yPos);
    }
    
@@ -160,14 +210,10 @@ void showMonster() {
 }
 
 void moveMonster() {
-  if (monsterPosition[0] < cursorPosition[0] && !checkCollision(monsterPosition[0]+1, monsterPosition[1])) {
-    monsterPosition[0]++;
-  } else if (monsterPosition[0] > cursorPosition[0] && !checkCollision(monsterPosition[0]-1, monsterPosition[1])) {
-    monsterPosition[0]--;
-  } else if (monsterPosition[1] < cursorPosition[1] && !checkCollision(monsterPosition[0], monsterPosition[1]+1)) {
-    monsterPosition[1]++;
-  } else if (monsterPosition[1] > cursorPosition[1] && !checkCollision(monsterPosition[0], monsterPosition[1]-1)) {
-    monsterPosition[1]--;
+  if (path.size() > 0) {
+    monsterPosition[0] = path.get(0).x-1;
+    monsterPosition[1] = path.get(0).y-1;
+    path.remove(0);
   }
 }
 
@@ -191,19 +237,32 @@ void keyPressed() {
 }
 
 void moveLeft() {
-  if (cursorPosition[0]>0 && !checkCollision(cursorPosition[0]-1, cursorPosition[1])) cursorPosition[0]--;
+  if (cursorPosition[0]>0 && !checkCollision(cursorPosition[0]-1, cursorPosition[1])) 
+  {
+    cursorPosition[0]--;
+    findPathToUser();
+  }
 }
 
 void moveRight() {
-  if (cursorPosition[0]<7  && !checkCollision(cursorPosition[0]+1, cursorPosition[1])) cursorPosition[0]++;
+  if (cursorPosition[0]<7  && !checkCollision(cursorPosition[0]+1, cursorPosition[1])) {
+    cursorPosition[0]++;
+    findPathToUser();
+  }
 }
 
 void moveUp() {
-  if (cursorPosition[1]>0  && !checkCollision(cursorPosition[0], cursorPosition[1]-1)) cursorPosition[1]--;
+  if (cursorPosition[1]>0  && !checkCollision(cursorPosition[0], cursorPosition[1]-1)) {
+    cursorPosition[1]--;
+    findPathToUser();
+  }
 }
 
 void moveDown() {
-  if (cursorPosition[1]<7  && !checkCollision(cursorPosition[0], cursorPosition[1]+1)) cursorPosition[1]++;
+  if (cursorPosition[1]<7  && !checkCollision(cursorPosition[0], cursorPosition[1]+1)) {
+    cursorPosition[1]++;
+    findPathToUser();
+  }
 }
 
 boolean checkCollision(int x, int y) {
