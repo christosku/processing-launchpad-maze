@@ -222,9 +222,19 @@ void noteOn(int channel, int pitch, int velocity) {
   int x = pitch%10;
   int y = 90-(pitch-x);
   Node n = graph.graph.get(y+x);
-  print(n.x);
-  print(n.y);
-  println();
+  if (n != null) {
+    print(n.x);
+    print(n.y);
+    println();
+    print("neighbors: ");
+    for (int i=0; i< n.edges.size(); i++) {
+      print(n.edges.get(i).x);
+      print(n.edges.get(i).y);
+      print(", ");
+    }
+    
+  }
+
 }
 
 void noteOff(int channel, int pitch, int velocity) {
