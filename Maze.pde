@@ -20,7 +20,7 @@ int[][] labyrinth = {
 
 Graph graph = new Graph();
 
-
+int[] keyPosition = {0, 0};
 int[] cursorPosition = {2, 7};
 int[] monsterPosition = {0, 7};
 long lastMove = 0;
@@ -35,6 +35,7 @@ void setup() {
         Node n = graph.graph.get(10*i+j);
         if (n == null) {
           n = graph.addNode(j, i);
+        
         }
       }
     }
@@ -111,8 +112,9 @@ void draw() {
 
   showCursor();
   showMonster();
+  showKey();
   delay(50);
-  if (millis() - lastMove > 500) {
+  if (millis() - lastMove > 250) {
     moveMonster();
     lastMove = millis();
     //println(dist(monsterPosition[0], monsterPosition[1], cursorPosition[0], cursorPosition[1]));
@@ -205,8 +207,14 @@ void showCursor() {
 
 void showMonster() {
   myBus.sendNoteOn(0, xyToNote(monsterPosition[0], monsterPosition[1]), 50); // Send a Midi noteOn
-  fill(255, 0, 0);
+  fill(125, 0, 0);
   circle(60+monsterPosition[0]*40, 60+monsterPosition[1]*40, 40);
+}
+
+void showKey(){
+  myBus.sendNoteOn(0, xyToNote(keyPosition[0],keyPosition[1]), 15); // Send a Midi noteOn
+  fill(130, 110, 0);
+  circle(60+keyPosition[0]*40, 60+keyPosition[1]*40, 40);
 }
 
 void moveMonster() {
