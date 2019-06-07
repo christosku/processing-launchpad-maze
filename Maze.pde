@@ -11,7 +11,7 @@ int[][] labyrinth = {
   {1, 0, 0, 0, 0, 0, 1, 0, 0, 1}, 
   {1, 0, 1, 0, 1, 1, 1, 0, 1, 1}, 
   {1, 0, 1, 0, 0, 0, 0, 0, 0, 1}, 
-  {1, 0, 1, 1, 1, 1, 1, 1, 0, 1}, 
+  {1, 0, 1, 1, 0, 1, 1, 1, 0, 1}, 
   {1, 0, 1, 0, 0, 0, 1, 0, 0, 1}, 
   {1, 0, 1, 0, 1, 0, 0, 0, 1, 1}, 
   {1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
@@ -21,6 +21,8 @@ int[][] labyrinth = {
 Graph graph = new Graph();
 
 int[] keyPosition = {0, 0};
+int[] exitPosition = {8, 7};
+boolean hasKey = false;
 int[] cursorPosition = {2, 7};
 int[] monsterPosition = {0, 7};
 long lastMove = 0;
@@ -97,7 +99,7 @@ void draw() {
   for (int i=0; i < 10; i++) {
     for (int j=0; j < 10; j++) {
       int position = 10*(9-i)+j;
-      if (position != xyToNote(cursorPosition[0], cursorPosition[1]) && position != xyToNote(monsterPosition[0], monsterPosition[1])) {
+      if (position != xyToNote(cursorPosition[0], cursorPosition[1]) && position != xyToNote(monsterPosition[0], monsterPosition[1]) && position != xyToNote(exitPosition[0], exitPosition[1])) {
         if (labyrinth[i][j]==0) {
           myBus.sendNoteOn(0, position, 0); // Send a Midi noteOn
           fill(0, 0, 0);
@@ -112,13 +114,21 @@ void draw() {
 
   showCursor();
   showMonster();
-  showKey();
+  if (!hasKey) showKey();
+  if (!hasKey && cursorPosition[0] == exitPosition[0] && cursorPosition[1] == exitPosition[1]) hasKey = true;
+  if (hasKey) showExit();
   delay(50);
-  if (millis() - lastMove > 250) {
+  if (millis() - lastMove > 350) {
     moveMonster();
     lastMove = millis();
     //println(dist(monsterPosition[0], monsterPosition[1], cursorPosition[0], cursorPosition[1]));
   }
+}
+
+void showExit() {
+  myBus.sendNoteOn(0, xyToNote(exitPosition[0], exitPosition[1]), 51); // Send a Midi noteOn
+  fill(10, 128, 40);
+  circle(60+exitPosition[0]*40, 60+exitPosition[1]*40, 40);
 }
 
 void findPathToUser() {
@@ -218,9 +228,9 @@ void showKey(){
 }
 
 void moveMonster() {
-  if (path.size() > 0) {
-    monsterPosition[0] = path.get(0).x-1;
-    monsterPosition[1] = path.get(0).y-1;
+  if (path.size() > 1) {
+    monsterPosition[0] = path.get(1).x-1;
+    monsterPosition[1] = path.get(1).y-1;
     path.remove(0);
   }
 }
