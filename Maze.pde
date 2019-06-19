@@ -21,7 +21,7 @@ int[][] labyrinth = {
 Graph graph = new Graph();
 
 int[] keyPosition = {0, 0};
-int[] exitPosition = {8, 7};
+int[] exitPosition = {6, 7};
 boolean hasKey = false;
 int[] cursorPosition = {2, 7};
 int[] monsterPosition = {0, 7};
@@ -99,7 +99,11 @@ void draw() {
   for (int i=0; i < 10; i++) {
     for (int j=0; j < 10; j++) {
       int position = 10*(9-i)+j;
-      if (position != xyToNote(cursorPosition[0], cursorPosition[1]) && position != xyToNote(monsterPosition[0], monsterPosition[1]) && position != xyToNote(exitPosition[0], exitPosition[1])) {
+      if ((position != xyToNote(cursorPosition[0], cursorPosition[1]) && 
+          position != xyToNote(monsterPosition[0], monsterPosition[1])) ||
+          ((position == xyToNote(keyPosition[0], keyPosition[1])) && hasKey) ||
+          ((position == xyToNote(exitPosition[0], exitPosition[1])) && !hasKey)
+          ) {
         if (labyrinth[i][j]==0) {
           myBus.sendNoteOn(0, position, 0); // Send a Midi noteOn
           fill(0, 0, 0);
@@ -115,7 +119,7 @@ void draw() {
   showCursor();
   showMonster();
   if (!hasKey) showKey();
-  if (!hasKey && cursorPosition[0] == exitPosition[0] && cursorPosition[1] == exitPosition[1]) hasKey = true;
+  if (!hasKey && cursorPosition[0] == keyPosition[0] && cursorPosition[1] == keyPosition[1]) hasKey = true;
   if (hasKey) showExit();
   delay(50);
   if (millis() - lastMove > 350) {
