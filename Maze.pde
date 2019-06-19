@@ -1,6 +1,10 @@
+import processing.sound.*;
+
 import themidibus.*; //Import the library
 import java.util.Map;
 
+SoundFile playerMovement;
+SoundFile getKey;
 
 MidiBus myBus; // The MidiBus
 
@@ -28,6 +32,15 @@ int[] monsterPosition = {0, 7};
 long lastMove = 0;
 ArrayList<Node> path = new ArrayList<Node>();
 void setup() {
+  size (400, 400);
+  background (255);
+  getKey = new SoundFile(this,"Key_Pick.wav");
+  
+  size (400, 400);
+  background (255);
+  playerMovement = new SoundFile(this,"Cursor_Move.wav");
+  playerMovement.amp(0.4);
+  
   size(400, 400);
   background(0);
 
@@ -100,7 +113,8 @@ void draw() {
     for (int j=0; j < 10; j++) {
       int position = 10*(9-i)+j;
       if ((position != xyToNote(cursorPosition[0], cursorPosition[1]) && 
-          position != xyToNote(monsterPosition[0], monsterPosition[1])) ||
+          position != xyToNote(monsterPosition[0], monsterPosition[1]) &&
+          position != xyToNote(keyPosition [0], keyPosition [1])) ||
           ((position == xyToNote(keyPosition[0], keyPosition[1])) && hasKey) ||
           ((position == xyToNote(exitPosition[0], exitPosition[1])) && !hasKey)
           ) {
@@ -119,9 +133,13 @@ void draw() {
   showCursor();
   showMonster();
   if (!hasKey) showKey();
-  if (!hasKey && cursorPosition[0] == keyPosition[0] && cursorPosition[1] == keyPosition[1]) hasKey = true;
+  if (!hasKey && cursorPosition[0] == keyPosition[0] && cursorPosition[1] == keyPosition[1]) {
+    hasKey = true;
+    getKey.amp(0.3);
+    getKey.play();
+  }
   if (hasKey) showExit();
-  delay(50);
+   delay(50);
   if (millis() - lastMove > 350) {
     moveMonster();
     lastMove = millis();
@@ -130,7 +148,7 @@ void draw() {
 }
 
 void showExit() {
-  myBus.sendNoteOn(0, xyToNote(exitPosition[0], exitPosition[1]), 51); // Send a Midi noteOn
+  myBus.sendNoteOn(0, xyToNote(exitPosition[0], exitPosition[1]), 17); // Send a Midi noteOn
   fill(10, 128, 40);
   circle(60+exitPosition[0]*40, 60+exitPosition[1]*40, 40);
 }
@@ -263,6 +281,8 @@ void moveLeft() {
   {
     cursorPosition[0]--;
     findPathToUser();
+    playerMovement.play();
+    playerMovement.rate(random(0.8, 1.3));
   }
 }
 
@@ -270,6 +290,8 @@ void moveRight() {
   if (cursorPosition[0]<7  && !checkCollision(cursorPosition[0]+1, cursorPosition[1])) {
     cursorPosition[0]++;
     findPathToUser();
+    playerMovement.play();
+    playerMovement.rate(random(0.8, 1.3));
   }
 }
 
@@ -277,6 +299,8 @@ void moveUp() {
   if (cursorPosition[1]>0  && !checkCollision(cursorPosition[0], cursorPosition[1]-1)) {
     cursorPosition[1]--;
     findPathToUser();
+    playerMovement.play();
+    playerMovement.rate(random(0.8, 1.3));
   }
 }
 
@@ -284,6 +308,8 @@ void moveDown() {
   if (cursorPosition[1]<7  && !checkCollision(cursorPosition[0], cursorPosition[1]+1)) {
     cursorPosition[1]++;
     findPathToUser();
+    playerMovement.play();
+    playerMovement.rate(random(0.8, 1.3));
   }
 }
 
