@@ -27,6 +27,7 @@ Graph graph = new Graph();
 int[] keyPosition = {0, 0};
 int[] exitPosition = {6, 7};
 boolean hasKey = false;
+boolean playerDeath = false;
 int[] cursorPosition = {2, 7};
 int[] monsterPosition = {0, 7};
 long lastMove = 0;
@@ -116,8 +117,12 @@ void draw() {
           position != xyToNote(monsterPosition[0], monsterPosition[1]) &&
           position != xyToNote(keyPosition [0], keyPosition [1])) ||
           ((position == xyToNote(keyPosition[0], keyPosition[1])) && hasKey) ||
-          ((position == xyToNote(exitPosition[0], exitPosition[1])) && !hasKey)
-          ) {
+          ((position == xyToNote(exitPosition[0], exitPosition[1])) && !hasKey)||
+          ((position != xyToNote(monsterPosition[0], monsterPosition[1]) && playerDeath)||
+          (( position == xyToNote(monsterPosition [0], monsterPosition[1]) && !playerDeath)
+          )))
+         
+          {
         if (labyrinth[i][j]==0) {
           myBus.sendNoteOn(0, position, 0); // Send a Midi noteOn
           fill(0, 0, 0);
@@ -132,6 +137,12 @@ void draw() {
 
   showCursor();
   showMonster();
+  if (!playerDeath && monsterPosition [0] == cursorPosition[0] && monsterPosition[1] == cursorPosition[1]){
+    playerDeath = true;
+    Restart();
+    println("Death is Iminnent");
+   
+  }
   if (!hasKey) showKey();
   if (!hasKey && cursorPosition[0] == keyPosition[0] && cursorPosition[1] == keyPosition[1]) {
     hasKey = true;
@@ -145,6 +156,18 @@ void draw() {
     lastMove = millis();
     //println(dist(monsterPosition[0], monsterPosition[1], cursorPosition[0], cursorPosition[1]));
   }
+}
+
+void Restart(){
+  
+int[] keyPosition = {0, 0};
+int[] exitPosition = {6, 7};
+boolean hasKey = false;
+boolean playerDeath = false;
+int[] cursorPosition = {2, 7};
+int[] monsterPosition = {0, 7};
+//long lastMove = 0;
+//ArrayList<Node> path = new ArrayList<Node>();
 }
 
 void showExit() {
