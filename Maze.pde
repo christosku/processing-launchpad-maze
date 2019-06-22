@@ -5,6 +5,7 @@ import java.util.Map;
 
 SoundFile playerMovement;
 SoundFile getKey;
+SoundFile playerIsDead;
 
 MidiBus myBus; // The MidiBus
 
@@ -33,6 +34,11 @@ int[] monsterPosition = {0, 7};
 long lastMove = 0;
 ArrayList<Node> path = new ArrayList<Node>();
 void setup() {
+  
+  size (400, 400);
+  background (255);
+  playerIsDead = new SoundFile(this,"Take_Damage.wav");
+  
   size (400, 400);
   background (255);
   getKey = new SoundFile(this,"Key_Pick.wav");
@@ -137,13 +143,7 @@ void draw() {
   showCursor();
   showMonster();
   
-  if (!playerDeath && monsterPosition [0] == cursorPosition[0] && monsterPosition[1] == cursorPosition[1]){
-    playerDeath = true;
-    Restart();
-    //println("Death is Iminnent");
-   
-  }
-  if (!hasKey) showKey();
+ if (!hasKey) showKey();
   if (!hasKey && cursorPosition[0] == keyPosition[0] && cursorPosition[1] == keyPosition[1]) {
     hasKey = true;
     getKey.amp(0.3);
@@ -156,7 +156,17 @@ void draw() {
     lastMove = millis();
     //println(dist(monsterPosition[0], monsterPosition[1], cursorPosition[0], cursorPosition[1]));
   }
-}
+  
+    if (!playerDeath && monsterPosition [0] == cursorPosition[0] && monsterPosition[1] == cursorPosition[1]) {
+   playerDeath = true;
+   playerIsDead.play();
+   playerIsDead.amp(0.3);
+   Restart();
+   //println("Death is Iminnent");
+   
+  }
+  
+   }
 
 void Restart(){
   cursorPosition [0] = 2;
@@ -165,6 +175,7 @@ void Restart(){
   monsterPosition [1] = 7;
   keyPosition [0] = 0;
   keyPosition [1] = 0;
+  playerDeath = false;
   hasKey = false;
   
   println("Death is Iminnent");
