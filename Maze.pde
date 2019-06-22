@@ -51,7 +51,6 @@ void setup() {
         Node n = graph.graph.get(10*i+j);
         if (n == null) {
           n = graph.addNode(j, i);
-        
         }
       }
     }
@@ -137,10 +136,11 @@ void draw() {
 
   showCursor();
   showMonster();
+  
   if (!playerDeath && monsterPosition [0] == cursorPosition[0] && monsterPosition[1] == cursorPosition[1]){
     playerDeath = true;
     Restart();
-    println("Death is Iminnent");
+    //println("Death is Iminnent");
    
   }
   if (!hasKey) showKey();
@@ -159,15 +159,16 @@ void draw() {
 }
 
 void Restart(){
+  cursorPosition [0] = 2;
+  cursorPosition [1] = 7;
+  monsterPosition [0] = 0;
+  monsterPosition [1] = 7;
+  keyPosition [0] = 0;
+  keyPosition [1] = 0;
+  hasKey = false;
   
-int[] keyPosition = {0, 0};
-int[] exitPosition = {6, 7};
-boolean hasKey = false;
-boolean playerDeath = false;
-int[] cursorPosition = {2, 7};
-int[] monsterPosition = {0, 7};
-//long lastMove = 0;
-//ArrayList<Node> path = new ArrayList<Node>();
+  println("Death is Iminnent");
+ 
 }
 
 void showExit() {
