@@ -9,7 +9,7 @@ SoundFile playerIsDead;
 
 MidiBus myBus; // The MidiBus
 
-int[][] labyrinth = {
+int[][] labyrinth ={
   {1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, 
   {1, 0, 0, 0, 0, 0, 0, 0, 0, 1}, 
   {1, 1, 1, 1, 1, 0, 1, 1, 0, 1}, 
@@ -21,14 +21,16 @@ int[][] labyrinth = {
   {1, 0, 1, 0, 1, 0, 0, 0, 1, 1}, 
   {1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
 };
+  
+   Graph graph = new Graph();
 
 
-Graph graph = new Graph();
 
 int[] keyPosition = {0, 0};
 int[] exitPosition = {6, 7};
 boolean hasKey = false;
 boolean playerDeath = false;
+boolean playerExt = false;
 int[] cursorPosition = {2, 7};
 int[] monsterPosition = {0, 7};
 long lastMove = 0;
@@ -120,12 +122,15 @@ void draw() {
       int position = 10*(9-i)+j;
       if ((position != xyToNote(cursorPosition[0], cursorPosition[1]) && 
           position != xyToNote(monsterPosition[0], monsterPosition[1]) &&
+          position != xyToNote(exitPosition[0], exitPosition[1])&&
           position != xyToNote(keyPosition [0], keyPosition [1])) ||
           ((position == xyToNote(keyPosition[0], keyPosition[1])) && hasKey) ||
           ((position == xyToNote(exitPosition[0], exitPosition[1])) && !hasKey)||
           ((position != xyToNote(monsterPosition[0], monsterPosition[1]) && playerDeath)||
-          (( position == xyToNote(monsterPosition [0], monsterPosition[1]) && !playerDeath)
-          )))
+          (( position == xyToNote(monsterPosition[0], monsterPosition[1]) && !playerDeath)||
+          (( position == xyToNote(exitPosition[0], exitPosition[1]) && playerExt)||
+          (( position != xyToNote(exitPosition[0], exitPosition[1]) && !playerExt)
+          )))))
          
           {
         if (labyrinth[i][j]==0) {
@@ -166,7 +171,13 @@ void draw() {
    
   }
   
-   }
+  if (!playerExt && exitPosition[0] == cursorPosition[0] && exitPosition[1] == cursorPosition[1] && hasKey) {
+    Restart();
+  
+  }
+ 
+}
+   
 
 void Restart(){
   cursorPosition [0] = 2;
@@ -177,8 +188,9 @@ void Restart(){
   keyPosition [1] = 0;
   playerDeath = false;
   hasKey = false;
+  playerExt = false;
   
-  println("Death is Iminnent");
+ // println("Death is Iminnent");
  
 }
 
